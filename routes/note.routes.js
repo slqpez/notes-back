@@ -1,5 +1,5 @@
 const express = require("express");
-const db = require("../models/note.js");
+const Note = require("../models/note.js");
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -7,54 +7,48 @@ router.get("/", (req, res) => {
 });
 
 router.get("/api/notes", (req, res) => {
-  db.find({}).then((notes) => {
+  Note.find({}).then((notes) => {
     res.json(notes);
   });
 });
 
-/*
-const generateId = () => {
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => n.id))
-    : 0
-  return maxId + 1
-}
+router.get("/api/notes/:id", (req, res) => {
+  const id = req.params.id;
+  Note.findById(id).then((note) => {
+    if (note) {
+      res.json(note);
+    } else {
+      res.status(404).end();
+    }
+  });
+});
 
-router.post('/api/notes', (request, response) => {
-  const body = request.body
+router.post("/api/notes", (req, res) => {
+  const body = req.body;
 
   if (!body.content) {
-    return response.status(400).json({ 
-      error: 'content missing' 
-    })
+    return res.status(400).json({
+      error: "content missing",
+    });
   }
 
-  const note = {
+  const note = new Note({
     content: body.content,
     important: body.important || false,
     date: new Date(),
-    id: generateId(),
-  }
+  });
 
-  notes = notes.concat(note)
+  note.save().then((note) => {
+    res.json(note);
+  });
+});
 
-  response.json(note)
-})
+router.delete("/api/notes/:id", (req, res) => {
+  const id = req.params.id;
 
-router.get('/api/notes/:id', (req,res)=>{
-  const id = req.params.id
-  const note = notes.find(note=> note.id === Number(id))
-  if (note) {
-    res.json(note)
-  } else {
-    res.status(404).end()
-  }
-})
-
-router.delete('/api/notes/:id', (req,res)=>{
-  const id = req.params.id
-  notes = notes.filter(note=> note.id !== Number(id))
-  res.status(204).end()
-}) */
+  Note.findByIdAndRemove(id).then((noteDeleted) => {
+    res.json(noteDeleted).end();
+  });
+});
 
 module.exports = router;
