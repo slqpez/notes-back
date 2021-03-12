@@ -1,5 +1,5 @@
 const express = require("express");
-const db = require("../mongo.js");
+const db = require("../models/note.js");
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -7,8 +7,8 @@ router.get("/", (req, res) => {
 });
 
 router.get("/api/notes", (req, res) => {
-  db.find({}).then((note) => {
-    res.send(note);
+  db.find({}).then((notes) => {
+    res.json(notes);
   });
 });
 
